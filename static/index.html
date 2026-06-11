@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConveneAI Minutes - Meeting Summarizer & Analytics</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fa-solid fa-file-invoice logo-icon"></i>
+                    <span>ConveneAI <span class="highlight">Minutes</span></span>
+                </div>
+            </div>
+
+            <!-- Preset Loaders -->
+            <div class="preset-section">
+                <div class="small-title"><i class="fa-solid fa-folder-open"></i> Sample Transcripts</div>
+                <div class="preset-buttons">
+                    <button class="btn btn-preset" id="preset-retro-btn">
+                        <i class="fa-solid fa-code"></i> Product Retro Sync
+                    </button>
+                    <button class="btn btn-preset" id="preset-marketing-btn">
+                        <i class="fa-solid fa-chart-line"></i> Growth & Ads Strategy
+                    </button>
+                    <button class="btn btn-preset" id="preset-board-btn">
+                        <i class="fa-solid fa-users-gear"></i> Recruitment Board Sync
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sizing metrics -->
+            <div class="sidebar-stats" id="sidebar-stats-card" style="display: none;">
+                <div class="small-title"><i class="fa-solid fa-chart-simple"></i> Session Sizing</div>
+                <div class="stat-row">
+                    <span class="stat-lbl">Total Word Count</span>
+                    <span class="stat-val" id="stat-words">0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-lbl">Active Speakers</span>
+                    <span class="stat-val" id="stat-speakers">0</span>
+                </div>
+            </div>
+
+            <!-- Navigation Toggles -->
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-tab="editor-pane">
+                    <i class="fa-solid fa-pen-to-square"></i> Transcript Editor
+                </button>
+                <button class="nav-item" data-tab="summary-pane" id="summary-tab-btn" style="display: none;">
+                    <i class="fa-solid fa-file-contract"></i> Executive Summary
+                </button>
+                <button class="nav-item" data-tab="analytics-pane" id="analytics-tab-btn" style="display: none;">
+                    <i class="fa-solid fa-chart-pie"></i> Dialogue Analytics
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <span>ConveneAI Summarizer v1.0.0</span>
+                <span>Structured Action Items Extraction</span>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="main-content">
+            <header class="main-header">
+                <div class="header-title">
+                    <h1>Meeting Minutes & Analytics Board</h1>
+                    <p class="subtitle">Extract executive reports, compile action checklists, and view conversation sentiment timelines</p>
+                </div>
+            </header>
+
+            <!-- TAB 1: TRANSCRIPT EDITOR -->
+            <section id="editor-pane" class="tab-pane active">
+                <div class="editor-grid">
+                    <!-- Left: Paste inputs -->
+                    <div class="card editor-card-main">
+                        <div class="card-header">
+                            <span class="card-title"><i class="fa-solid fa-paragraph"></i> Transcript Input Panel</span>
+                        </div>
+                        <div class="card-body">
+                            <form id="summarize-form">
+                                <div class="form-group">
+                                    <label for="transcript-input">Paste meeting transcript or select a sample preset from the sidebar (format should look like <i>Speaker Name: Message</i>):</label>
+                                    <textarea id="transcript-input" placeholder="Sarah: Let's discuss our marketing strategy...&#10;Lisa: I will draft the copy..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn-primary btn-glow" id="compile-btn">
+                                    <span>Compile Minutes & Analytics</span> <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Right: Info cards -->
+                    <div class="card info-card">
+                        <div class="card-header">
+                            <span class="card-title"><i class="fa-solid fa-circle-question"></i> Sizing Guidelines</span>
+                        </div>
+                        <div class="card-body guidelines-body">
+                            <div class="guideline-item">
+                                <div class="gl-icon"><i class="fa-solid fa-user-tag"></i></div>
+                                <div class="gl-content">
+                                    <div class="gl-title">Structured Speaker Formats</div>
+                                    <div class="gl-text">Dialogue turns must start with a speaker name followed by a colon (e.g. <b>Sarah: </b> or <b>[Sarah]:</b>) to accurately compute speaker allocations.</div>
+                                </div>
+                            </div>
+                            <div class="guideline-item">
+                                <div class="gl-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+                                <div class="gl-content">
+                                    <div class="gl-title">Action Items Parser</div>
+                                    <div class="gl-text">Tasks containing phrases like <i>"I will [verb]"</i> or <i>"[Name] to [verb]"</i> will automatically map tasks to owners.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: EXECUTIVE SUMMARY -->
+            <section id="summary-pane" class="tab-pane">
+                <div class="summary-actions-bar">
+                    <button class="btn btn-secondary" id="copy-markdown-btn">
+                        <i class="fa-regular fa-clipboard"></i> Copy Markdown Recap
+                    </button>
+                    <button class="btn btn-secondary" id="download-markdown-btn">
+                        <i class="fa-solid fa-download"></i> Download Markdown File
+                    </button>
+                </div>
+
+                <div class="summary-grid">
+                    <!-- Left Column: Exec summary & Decisions -->
+                    <div class="summary-left">
+                        <!-- Exec summary card -->
+                        <div class="card recap-card">
+                            <div class="card-header">
+                                <span class="card-title"><i class="fa-solid fa-file-lines"></i> Executive Summary</span>
+                            </div>
+                            <div class="card-body">
+                                <p class="lead-summary" id="text-exec-summary">Loading executive overview...</p>
+                            </div>
+                        </div>
+
+                        <!-- Decisions card -->
+                        <div class="card decisions-card">
+                            <div class="card-header">
+                                <span class="card-title"><i class="fa-solid fa-scale-balanced"></i> Key Decisions Approved</span>
+                            </div>
+                            <div class="card-body">
+                                <ul class="decisions-list" id="list-decisions">
+                                    <!-- Dynamic list -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Actions checklist table -->
+                    <div class="summary-right">
+                        <div class="card actions-card">
+                            <div class="card-header">
+                                <span class="card-title"><i class="fa-solid fa-list-check"></i> Action Deliverables Checklist</span>
+                            </div>
+                            <div class="card-body table-responsive">
+                                <table class="actions-table" id="actions-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 50px;">Status</th>
+                                            <th>Task Deliverable</th>
+                                            <th>Owner</th>
+                                            <th>Priority</th>
+                                            <th>Timeline</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Dynamic items -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: DIALOGUE ANALYTICS -->
+            <section id="analytics-pane" class="tab-pane">
+                <div class="analytics-grid">
+                    <!-- Donut speaker allocation -->
+                    <div class="card chart-card">
+                        <div class="card-header">
+                            <span class="card-title"><i class="fa-solid fa-comments"></i> Speaker Share of Voice (%)</span>
+                        </div>
+                        <div class="card-body chart-wrapper">
+                            <canvas id="speaker-share-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Line sentiment variance -->
+                    <div class="card chart-card">
+                        <div class="card-header">
+                            <span class="card-title"><i class="fa-solid fa-heart-pulse"></i> Session Sentiment Timeline Flow</span>
+                        </div>
+                        <div class="card-body chart-wrapper">
+                            <canvas id="sentiment-timeline-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Bar topic weights -->
+                    <div class="card chart-card full-width">
+                        <div class="card-header">
+                            <span class="card-title"><i class="fa-solid fa-tags"></i> Discussion Topic Weight Distribution (%)</span>
+                        </div>
+                        <div class="card-body chart-wrapper bar-chart-height">
+                            <canvas id="topic-weights-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Script file -->
+    <script src="app.js"></script>
+</body>
+</html>
